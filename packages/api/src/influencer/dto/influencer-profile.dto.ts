@@ -2,14 +2,14 @@ import { IsString, IsInt, IsOptional, IsUrl, Min } from 'class-validator';
 
 export class CreateInfluencerProfileDto {
   @IsUrl()
-  channelUrl: string;
+  channelUrl!: string;
 
   @IsInt()
   @Min(0)
-  subscribers: number;
+  subscribers!: number;
 
   @IsString()
-  category: string;
+  category!: string;
 
   @IsOptional()
   @IsString()

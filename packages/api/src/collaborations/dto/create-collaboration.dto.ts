@@ -2,13 +2,13 @@ import { IsInt, IsString, IsOptional } from 'class-validator';
 
 export class CreateCollaborationDto {
   @IsInt()
-  influencerProfileId: number;
+  influencerProfileId!: number;
 
   @IsInt()
-  productId: number;
+  productId!: number;
 
   @IsString()
-  terms: string;
+  terms!: string;
 
   @IsOptional()
   @IsString()

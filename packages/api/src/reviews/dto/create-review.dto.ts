@@ -2,16 +2,16 @@ import { IsInt, IsString, Min, Max, MinLength, IsOptional, IsArray } from 'class
 
 export class CreateReviewDto {
   @IsInt()
-  productId: number;
+  productId!: number;
 
   @IsInt()
   @Min(1)
   @Max(5)
-  rating: number;
+  rating!: number;
 
   @IsString()
   @MinLength(10)
-  comment: string;
+  comment!: string;
 
   @IsOptional()
   @IsArray()
