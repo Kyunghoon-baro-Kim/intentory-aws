@@ -26,6 +26,16 @@ async function main() {
     await prisma.product.upsert({ where: { id: products.indexOf(p) + 1 }, update: {}, create: p });
   }
 
+  // Create influencer profile
+  const influencer = await prisma.user.findUnique({ where: { email: 'influencer@inventrix.com' } });
+  if (influencer) {
+    await prisma.influencerProfile.upsert({
+      where: { userId: influencer.id },
+      update: {},
+      create: { userId: influencer.id, channelUrl: 'https://youtube.com/@inventrix-influencer', subscribers: 50000, category: 'tech', bio: 'Tech product reviewer' },
+    });
+  }
+
   console.log('Seed completed');
 }
 
