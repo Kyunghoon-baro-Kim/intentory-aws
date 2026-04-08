@@ -87,7 +87,25 @@ export default function AdminProducts() {
         </form>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto">
+      {/* Mobile: card layout */}
+      <div className="space-y-4 sm:hidden">
+        {products.map(p => (
+          <div key={p.id} data-testid={`admin-product-card-${p.id}`} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-white">{p.name}</h3>
+              <span className="text-lg font-bold text-primary">${p.price}</span>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Stock: {p.stock}</p>
+            <div className="flex gap-2">
+              <button data-testid={`admin-product-edit-${p.id}`} onClick={() => { setEditing(p); setForm({ name: p.name, description: p.description ?? '', price: p.price, stock: p.stock, imageUrl: p.imageUrl ?? '' }); }} className="flex-1 bg-yellow-400 text-gray-900 py-2 rounded-lg text-sm font-semibold">Edit</button>
+              <button data-testid={`admin-product-delete-${p.id}`} onClick={() => handleDelete(p.id)} className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-semibold">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead><tr className="border-b-2 border-gray-200 dark:border-gray-600 text-left text-gray-500 dark:text-gray-400">
             <th className="pb-2">Name</th><th className="pb-2">Price</th><th className="pb-2">Stock</th><th className="pb-2">Actions</th>
@@ -99,8 +117,8 @@ export default function AdminProducts() {
                 <td>${p.price}</td>
                 <td>{p.stock}</td>
                 <td className="flex gap-2 py-3">
-                  <button data-testid={`admin-product-edit-${p.id}`} onClick={() => startEdit(p)} className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-lg text-xs font-semibold">Edit</button>
-                  <button data-testid={`admin-product-delete-${p.id}`} onClick={() => handleDelete(p.id)} className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">Delete</button>
+                  <button data-testid={`admin-product-edit-desktop-${p.id}`} onClick={() => startEdit(p)} className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-lg text-xs font-semibold">Edit</button>
+                  <button data-testid={`admin-product-delete-desktop-${p.id}`} onClick={() => handleDelete(p.id)} className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">Delete</button>
                 </td>
               </tr>
             ))}

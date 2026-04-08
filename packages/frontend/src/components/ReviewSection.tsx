@@ -17,24 +17,35 @@ export default function ReviewSection({ productId }: { productId: number }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const load = () => {
-    fetch(`/api/reviews/product/${productId}`).then(r => r.json()).then(setReviews);
-    fetch(`/api/reviews/product/${productId}/rating`).then(r => r.json()).then(d => setAvg(d.average ?? 0));
+    Promise.all([
+      fetch(`/api/reviews/product/${productId}`).then(r => r.json()),
+      fetch(`/api/reviews/product/${productId}/rating`).then(r => r.json()),
+    ]).then(([r, a]) => { setReviews(r); setAvg(a.average ?? a ?? 0); }).catch(() => {}).finally(() => setLoading(false));
   };
 
   useEffect(load, [productId]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ productId, rating, comment })
-    });
-    if (res.ok) { setComment(''); setRating(5); setMsg('Review submitted!'); load(); }
-    else setMsg('Failed to submit review');
+    setMsg('');
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ productId, rating, comment })
+      });
+      if (res.ok) { setComment(''); setRating(5); setMsg('Review submitted!'); load(); }
+      else {
+        const err = await res.json().catch(() => null);
+        setMsg(err?.message ?? 'You can only review products you have received.');
+      }
+    } catch { setMsg('Failed to submit review'); }
   };
+
+  if (loading) return <div className="mt-8 text-gray-400">Loading reviews...</div>;
 
   return (
     <div data-testid="review-section" className="mt-8">

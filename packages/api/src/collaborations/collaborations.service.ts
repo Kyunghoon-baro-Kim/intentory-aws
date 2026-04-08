@@ -1,5 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CollaborationStatus } from '@prisma/client';
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  proposed: ['accepted', 'rejected'],
+  accepted: ['in_progress', 'rejected'],
+  rejected: [],
+  in_progress: ['completed'],
+  completed: [],
+};
 
 @Injectable()
 export class CollaborationsService {
@@ -9,8 +18,16 @@ export class CollaborationsService {
     return this.prisma.collaboration.create({ data });
   }
 
-  updateStatus(id: number, status: string) {
-    return this.prisma.collaboration.update({ where: { id }, data: { status: status as any } });
+  async updateStatus(id: number, newStatus: string) {
+    const collab = await this.prisma.collaboration.findUnique({ where: { id } });
+    if (!collab) throw new NotFoundException('Collaboration not found');
+
+    const allowed = VALID_TRANSITIONS[collab.status] || [];
+    if (!allowed.includes(newStatus)) {
+      throw new BadRequestException(`Cannot transition from '${collab.status}' to '${newStatus}'`);
+    }
+
+    return this.prisma.collaboration.update({ where: { id }, data: { status: newStatus as CollaborationStatus } });
   }
 
   findByInfluencer(influencerProfileId: number) {
