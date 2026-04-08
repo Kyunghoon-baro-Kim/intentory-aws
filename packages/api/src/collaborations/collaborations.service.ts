@@ -30,8 +30,10 @@ export class CollaborationsService {
     return this.prisma.collaboration.update({ where: { id }, data: { status: newStatus as CollaborationStatus } });
   }
 
-  findByInfluencer(influencerProfileId: number) {
-    return this.prisma.collaboration.findMany({ where: { influencerProfileId }, include: { product: true }, orderBy: { createdAt: 'desc' } });
+  async findByInfluencerUserId(userId: number) {
+    const profile = await this.prisma.influencerProfile.findUnique({ where: { userId } });
+    if (!profile) throw new NotFoundException('Influencer profile not found');
+    return this.prisma.collaboration.findMany({ where: { influencerProfileId: profile.id }, include: { product: true }, orderBy: { createdAt: 'desc' } });
   }
 
   findAll() {

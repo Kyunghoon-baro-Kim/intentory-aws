@@ -1,13 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+import { ReferralsService } from '../referrals/referrals.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService, private payments: PaymentsService) {}
+  constructor(private prisma: PrismaService, private payments: PaymentsService, private referrals: ReferralsService) {}
 
   async create(userId: number, items: { productId: number; quantity: number }[], referralCode?: string) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       let subtotal = 0;
       const updates: { id: number; qty: number; price: number }[] = [];
       for (const item of items) {
@@ -24,6 +25,9 @@ export class OrdersService {
       for (const u of updates) {
         await tx.orderItem.create({ data: { orderId: order.id, productId: u.id, quantity: u.qty, price: u.price } });
         await tx.product.update({ where: { id: u.id }, data: { stock: { decrement: u.qty } } });
+      }
+      if (referralCode) {
+        await this.referrals.trackReferral(referralCode, order.id, total);
       }
       return order;
     });

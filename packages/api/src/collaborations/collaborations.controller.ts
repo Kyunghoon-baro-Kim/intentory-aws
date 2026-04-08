@@ -28,7 +28,7 @@ export class CollaborationsController {
   @UseGuards(RolesGuard)
   @Roles(Role.influencer)
   findMy(@CurrentUser() user: any) {
-    return this.collabService.findByInfluencer(user.id);
+    return this.collabService.findByInfluencerUserId(user.id);
   }
 
   @Patch(':id/status')

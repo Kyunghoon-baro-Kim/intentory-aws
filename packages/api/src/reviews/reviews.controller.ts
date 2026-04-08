@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -18,9 +18,16 @@ export class ReviewsController {
     return this.reviewsService.create(user.id, dto);
   }
 
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.customer)
+  update(@CurrentUser() user: any, @Param('id', ParseIntPipe) id: number, @Body() dto: { rating?: number; comment?: string; imageUrls?: string[] }) {
+    return this.reviewsService.update(user.id, id, dto);
+  }
+
   @Get('product/:productId')
-  findByProduct(@Param('productId', ParseIntPipe) productId: number) {
-    return this.reviewsService.findByProduct(productId);
+  findByProduct(@Param('productId', ParseIntPipe) productId: number, @Query('page') page?: string, @Query('limit') limit?: string) {
+    return this.reviewsService.findByProduct(productId, Number(page) || 1, Number(limit) || 10);
   }
 
   @Get('product/:productId/rating')

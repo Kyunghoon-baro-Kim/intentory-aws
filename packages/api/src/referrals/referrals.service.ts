@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { randomBytes } from 'crypto';
 
@@ -7,6 +7,8 @@ export class ReferralsService {
   constructor(private prisma: PrismaService) {}
 
   async generateLink(userId: number, productId: number) {
+    const existing = await this.prisma.referralLink.findFirst({ where: { userId, productId } });
+    if (existing) throw new ConflictException('Referral link already exists for this product');
     const code = randomBytes(6).toString('hex');
     return this.prisma.referralLink.create({ data: { userId, productId, code } });
   }
@@ -18,7 +20,14 @@ export class ReferralsService {
   }
 
   getStats(userId: number) {
-    return this.prisma.referralLink.findMany({ where: { userId }, include: { commissions: true } });
+    return this.prisma.referralLink.findMany({ where: { userId }, include: { commissions: true, product: { select: { name: true, price: true } } } });
+  }
+
+  async getStatsSummary(userId: number) {
+    const links = await this.prisma.referralLink.findMany({ where: { userId }, include: { commissions: true } });
+    const totalOrders = links.reduce((sum, l) => sum + l.commissions.length, 0);
+    const totalCommission = links.reduce((sum, l) => sum + l.commissions.reduce((s, c) => s + c.amount, 0), 0);
+    return { totalLinks: links.length, totalOrders, totalCommission };
   }
 
   getCommissions(userId?: number) {
@@ -27,6 +36,6 @@ export class ReferralsService {
   }
 
   getMyLinks(userId: number) {
-    return this.prisma.referralLink.findMany({ where: { userId }, include: { product: { select: { name: true } } } });
+    return this.prisma.referralLink.findMany({ where: { userId }, include: { product: { select: { name: true, price: true } }, commissions: { select: { amount: true, status: true } } } });
   }
 }
