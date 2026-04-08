@@ -23,7 +23,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
     Promise.all([
       fetch(`/api/reviews/product/${productId}`).then(r => r.json()),
       fetch(`/api/reviews/product/${productId}/rating`).then(r => r.json()),
-    ]).then(([r, a]) => { setReviews(r); setAvg(a.average ?? a ?? 0); }).catch(() => {}).finally(() => setLoading(false));
+    ]).then(([r, a]) => { setReviews(r?.reviews ?? []); setAvg(a.average ?? 0); }).catch(() => {}).finally(() => setLoading(false));
   };
 
   useEffect(load, [productId]);

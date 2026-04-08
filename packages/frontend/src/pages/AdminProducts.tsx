@@ -37,9 +37,9 @@ export default function AdminProducts() {
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      const base64 = typeof data === 'string' ? data : data.image;
-      if (!base64) throw new Error('No image data');
-      setForm(f => ({ ...f, imageUrl: `data:image/png;base64,${base64}` }));
+      const imageUrl = typeof data === 'string' ? data : data.image;
+      if (!imageUrl) throw new Error('No image data');
+      setForm(f => ({ ...f, imageUrl }));
     } catch {
       alert('Image generation failed');
     } finally {

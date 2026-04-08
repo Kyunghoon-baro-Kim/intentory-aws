@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ProductsService {
   private bedrock = new BedrockRuntimeClient({});
+  private s3 = new S3Client({});
+  private bucket = process.env.S3_BUCKET_NAME || 'inventrix-product-images';
 
   constructor(private prisma: PrismaService) {}
 
@@ -41,9 +45,21 @@ export class ProductsService {
       });
       const response = await this.bedrock.send(command);
       const result = JSON.parse(new TextDecoder().decode(response.body));
-      return { image: result.images[0] };
+      const base64 = result.images[0];
+
+      const key = `products/${randomUUID()}.png`;
+      await this.s3.send(new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: Buffer.from(base64, 'base64'),
+        ContentType: 'image/png',
+      }));
+
+      const region = await this.s3.config.region();
+      const imageUrl = `https://${this.bucket}.s3.${region}.amazonaws.com/${key}`;
+      return { image: imageUrl };
     } catch (error) {
-      throw new NotFoundException('Image generation unavailable. Check AWS Bedrock credentials and model access.');
+      throw new NotFoundException('Image generation unavailable. Check AWS Bedrock/S3 credentials and access.');
     }
   }
 }
