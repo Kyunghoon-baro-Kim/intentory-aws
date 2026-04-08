@@ -25,6 +25,11 @@ export class ReviewsController {
     return this.reviewsService.update(user.id, id, dto);
   }
 
+  @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.admin_a, Role.admin_b)
+  findAll() { return this.reviewsService.findAll(); }
+
   @Get('product/:productId')
   findByProduct(@Param('productId', ParseIntPipe) productId: number, @Query('page') page?: string, @Query('limit') limit?: string) {
     return this.reviewsService.findByProduct(productId, Number(page) || 1, Number(limit) || 10);

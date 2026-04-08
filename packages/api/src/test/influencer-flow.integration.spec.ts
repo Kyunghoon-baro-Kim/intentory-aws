@@ -43,12 +43,12 @@ describe('Influencer Referral Flow — Integration', () => {
 
     const order = await ordersService.create(5, [{ productId: 1, quantity: 1 }], 'ref_abc123');
     expect(order.referralCode).toBe('ref_abc123');
-    expect(referralsMock.trackReferral).toHaveBeenCalledWith('ref_abc123', 1, 110);
+    expect(referralsMock.trackReferral).toHaveBeenCalledWith('ref_abc123', 1, 110, 5);
   });
 
   it('잘못된 레퍼럴 코드로 주문 시 커미션 미생성', async () => {
     prismaMock.referralLink.findUnique.mockResolvedValue(null);
-    const commission = await referralsService.trackReferral('invalid_code', 1, 100);
+    const commission = await referralsService.trackReferral('invalid_code', 1, 100, 5);
     expect(commission).toBeNull();
   });
 

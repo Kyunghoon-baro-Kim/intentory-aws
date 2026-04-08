@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InfluencerService } from './influencer.service';
 import { CreateInfluencerProfileDto, UpdateInfluencerProfileDto } from './dto/influencer-profile.dto';
@@ -21,6 +21,11 @@ export class InfluencerController {
   @Roles(Role.influencer)
   getMyProfile(@CurrentUser() user: any) { return this.influencerService.findByUserId(user.id); }
 
+  @Get('profile/stats')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.influencer)
+  getProfileWithStats(@CurrentUser() user: any) { return this.influencerService.getProfileWithStats(user.id); }
+
   @Post('profile')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.influencer)
@@ -33,5 +38,12 @@ export class InfluencerController {
   @Roles(Role.influencer)
   updateProfile(@CurrentUser() user: any, @Body() dto: UpdateInfluencerProfileDto) {
     return this.influencerService.updateProfile(user.id, dto);
+  }
+
+  @Patch('profile/visibility')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.influencer)
+  toggleVisibility(@CurrentUser() user: any) {
+    return this.influencerService.toggleVisibility(user.id);
   }
 }

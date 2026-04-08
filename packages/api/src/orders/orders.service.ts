@@ -27,7 +27,7 @@ export class OrdersService {
         await tx.product.update({ where: { id: u.id }, data: { stock: { decrement: u.qty } } });
       }
       if (referralCode) {
-        await this.referrals.trackReferral(referralCode, order.id, total);
+        await this.referrals.trackReferral(referralCode, order.id, total, userId);
       }
       return order;
     });
