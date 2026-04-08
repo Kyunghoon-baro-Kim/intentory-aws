@@ -12,56 +12,87 @@ describe('InfluencerService', () => {
   });
 
   describe('createProfile', () => {
-    it('should create an influencer profile', async () => {
-      const data = { channelUrl: 'https://youtube.com/@test', subscribers: 10000, category: 'tech', bio: 'Tech reviewer' };
+    it('should create profile', async () => {
       prisma.influencerProfile.findUnique.mockResolvedValue(null);
-      prisma.influencerProfile.create.mockResolvedValue({ id: 1, userId: 1, ...data, isPublic: true });
-
-      const result = await service.createProfile(1, data);
-      expect(result.channelUrl).toBe('https://youtube.com/@test');
+      prisma.influencerProfile.create.mockResolvedValue({ id: 1, userId: 1, channelUrl: 'url' });
+      expect((await service.createProfile(1, { channelUrl: 'url', subscribers: 100, category: 'tech' })).channelUrl).toBe('url');
     });
 
-    it('should reject duplicate profile', async () => {
-      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1, userId: 1 });
+    it('should reject duplicate', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1 });
       await expect(service.createProfile(1, { channelUrl: 'url', subscribers: 100, category: 'tech' })).rejects.toThrow(ConflictException);
     });
   });
 
   describe('updateProfile', () => {
-    it('should update profile fields', async () => {
-      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1, userId: 1 });
-      prisma.influencerProfile.update.mockResolvedValue({ id: 1, userId: 1, subscribers: 20000 });
-
-      const result = await service.updateProfile(1, { subscribers: 20000 });
-      expect(result.subscribers).toBe(20000);
+    it('should update', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1 });
+      prisma.influencerProfile.update.mockResolvedValue({ id: 1, subscribers: 20000 });
+      expect((await service.updateProfile(1, { subscribers: 20000 })).subscribers).toBe(20000);
     });
 
-    it('should reject update for non-existent profile', async () => {
+    it('should reject non-existent', async () => {
       prisma.influencerProfile.findUnique.mockResolvedValue(null);
       await expect(service.updateProfile(999, { subscribers: 100 })).rejects.toThrow(NotFoundException);
     });
   });
 
+  describe('toggleVisibility', () => {
+    it('should toggle public to private', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1, userId: 1, isPublic: true });
+      prisma.influencerProfile.update.mockResolvedValue({ id: 1, isPublic: false });
+      expect((await service.toggleVisibility(1)).isPublic).toBe(false);
+    });
+
+    it('should toggle private to public', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1, userId: 1, isPublic: false });
+      prisma.influencerProfile.update.mockResolvedValue({ id: 1, isPublic: true });
+      expect((await service.toggleVisibility(1)).isPublic).toBe(true);
+    });
+
+    it('should reject non-existent', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue(null);
+      await expect(service.toggleVisibility(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getProfileWithStats', () => {
+    it('should return profile with aggregated stats', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue({
+        id: 1, userId: 1, channelUrl: 'url', subscribers: 1000, category: 'tech',
+        collaborations: [{ id: 1, status: 'proposed' }, { id: 2, status: 'completed' }],
+        user: { name: 'Inf1', email: 'inf@test.com', referralLinks: [{ commissions: [{ amount: 5 }, { amount: 10 }] }] },
+      });
+      const result = await service.getProfileWithStats(1);
+      expect(result.stats.totalCollabs).toBe(2);
+      expect(result.stats.activeCollabs).toBe(1);
+      expect(result.stats.totalReferralLinks).toBe(1);
+      expect(result.stats.totalCommission).toBe(15);
+    });
+
+    it('should reject non-existent', async () => {
+      prisma.influencerProfile.findUnique.mockResolvedValue(null);
+      await expect(service.getProfileWithStats(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
   describe('findAll', () => {
     it('should return only public profiles', async () => {
-      prisma.influencerProfile.findMany.mockResolvedValue([{ id: 1, isPublic: true, user: { name: 'Inf1', email: 'i1@test.com' } }]);
-      const result = await service.findAll();
-      expect(result).toHaveLength(1);
+      prisma.influencerProfile.findMany.mockResolvedValue([{ id: 1 }]);
+      expect(await service.findAll()).toHaveLength(1);
       expect(prisma.influencerProfile.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { isPublic: true } }));
     });
   });
 
   describe('findByUserId', () => {
-    it('should return profile for user', async () => {
+    it('should return profile', async () => {
       prisma.influencerProfile.findUnique.mockResolvedValue({ id: 1, userId: 1 });
-      const result = await service.findByUserId(1);
-      expect(result?.userId).toBe(1);
+      expect((await service.findByUserId(1))?.userId).toBe(1);
     });
 
-    it('should return null for non-existent profile', async () => {
+    it('should return null if not found', async () => {
       prisma.influencerProfile.findUnique.mockResolvedValue(null);
-      const result = await service.findByUserId(999);
-      expect(result).toBeNull();
+      expect(await service.findByUserId(999)).toBeNull();
     });
   });
 });

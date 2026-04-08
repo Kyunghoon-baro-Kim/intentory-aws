@@ -52,7 +52,7 @@ describe('OrdersService', () => {
       referrals.trackReferral.mockResolvedValue({ id: 1, amount: 5.5 });
 
       await service.create(1, [{ productId: 1, quantity: 1 }], 'REF123');
-      expect(referrals.trackReferral).toHaveBeenCalledWith('REF123', 1, 110);
+      expect(referrals.trackReferral).toHaveBeenCalledWith('REF123', 1, 110, 1);
     });
 
     it('should not track referral when no referralCode', async () => {

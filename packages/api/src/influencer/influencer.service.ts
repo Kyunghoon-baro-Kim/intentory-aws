@@ -17,6 +17,25 @@ export class InfluencerService {
     return this.prisma.influencerProfile.update({ where: { userId }, data });
   }
 
+  async toggleVisibility(userId: number) {
+    const profile = await this.prisma.influencerProfile.findUnique({ where: { userId } });
+    if (!profile) throw new NotFoundException('Profile not found');
+    return this.prisma.influencerProfile.update({ where: { userId }, data: { isPublic: !profile.isPublic } });
+  }
+
+  async getProfileWithStats(userId: number) {
+    const profile = await this.prisma.influencerProfile.findUnique({
+      where: { userId },
+      include: { collaborations: { select: { id: true, status: true } }, user: { select: { name: true, email: true, referralLinks: { include: { commissions: true } } } } },
+    });
+    if (!profile) throw new NotFoundException('Profile not found');
+    const totalCollabs = profile.collaborations.length;
+    const activeCollabs = profile.collaborations.filter(c => !['completed', 'rejected'].includes(c.status)).length;
+    const links = profile.user.referralLinks;
+    const totalCommission = links.reduce((sum, l) => sum + l.commissions.reduce((s, c) => s + c.amount, 0), 0);
+    return { ...profile, stats: { totalCollabs, activeCollabs, totalReferralLinks: links.length, totalCommission } };
+  }
+
   findAll() { return this.prisma.influencerProfile.findMany({ where: { isPublic: true }, include: { user: { select: { name: true, email: true } } } }); }
 
   findByUserId(userId: number) { return this.prisma.influencerProfile.findUnique({ where: { userId } }); }

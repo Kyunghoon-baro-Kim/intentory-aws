@@ -27,19 +27,30 @@ export class ReviewsService {
     return this.prisma.review.update({ where: { id: reviewId }, data: { ...data, comment: data.comment?.trim() } });
   }
 
-  findByProduct(productId: number, page = 1, limit = 10) {
-    return this.prisma.review.findMany({
-      where: { productId },
-      include: { user: { select: { name: true } } },
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+  async findByProduct(productId: number, page = 1, limit = 10) {
+    const [reviews, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where: { productId },
+        include: { user: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.review.count({ where: { productId } }),
+    ]);
+    return { reviews, total, page, totalPages: Math.ceil(total / limit) };
   }
 
   async getAverageRating(productId: number) {
     const result = await this.prisma.review.aggregate({ where: { productId }, _avg: { rating: true }, _count: { rating: true } });
     return { average: result._avg.rating || 0, count: result._count.rating };
+  }
+
+  findAll() {
+    return this.prisma.review.findMany({
+      include: { user: { select: { name: true, email: true } }, product: { select: { name: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   delete(id: number) { return this.prisma.review.delete({ where: { id } }); }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ReferralsService } from './referrals.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -42,4 +42,11 @@ export class ReferralsController {
   @UseGuards(RolesGuard)
   @Roles(Role.influencer)
   getMyCommissions(@CurrentUser() user: any) { return this.referralsService.getCommissions(user.id); }
+
+  @Patch('commissions/:id/status')
+  @UseGuards(RolesGuard)
+  @Roles(Role.admin_a)
+  updateCommissionStatus(@Param('id', ParseIntPipe) id: number, @Body() body: { status: string }) {
+    return this.referralsService.updateCommissionStatus(id, body.status);
+  }
 }

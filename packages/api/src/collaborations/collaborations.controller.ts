@@ -31,8 +31,13 @@ export class CollaborationsController {
     return this.collabService.findByInfluencerUserId(user.id);
   }
 
+  @Get(':id')
+  findById(@Param('id', ParseIntPipe) id: number) {
+    return this.collabService.findById(id);
+  }
+
   @Patch(':id/status')
-  updateStatus(@Param('id', ParseIntPipe) id: number, @Body() body: { status: string }) {
-    return this.collabService.updateStatus(id, body.status);
+  updateStatus(@Param('id', ParseIntPipe) id: number, @Body() body: { status: string }, @CurrentUser() user: any) {
+    return this.collabService.updateStatus(id, body.status, user.id, user.role);
   }
 }
