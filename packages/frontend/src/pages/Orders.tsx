@@ -28,11 +28,11 @@ export default function Orders() {
       .then(r => r.json()).then(setOrders).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <div className="text-white text-center mt-16">Loading...</div>;
+  if (loading) return <div className="text-gray-500 dark:text-gray-400 text-center mt-16">Loading...</div>;
 
   return (
     <div>
-      <h1 data-testid="orders-title" className="mb-6 text-2xl font-bold text-white drop-shadow">My Orders</h1>
+      <h1 data-testid="orders-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">My Orders</h1>
       <div className="space-y-4">
         {orders.map(o => (
           <div key={o.id} data-testid={`order-card-${o.id}`} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex flex-col sm:flex-row justify-between gap-4">

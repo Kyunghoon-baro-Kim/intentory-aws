@@ -22,11 +22,11 @@ export default function AdminInventory() {
     return { label: 'In Stock', style: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' };
   };
 
-  if (loading) return <div className="text-white text-center mt-16">Loading...</div>;
+  if (loading) return <div className="text-gray-500 dark:text-gray-400 text-center mt-16">Loading...</div>;
 
   return (
     <div>
-      <h1 data-testid="admin-inventory-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Inventory Management</h1>
+      <h1 data-testid="admin-inventory-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Inventory Management</h1>
 
       {/* Mobile: card layout */}
       <div className="space-y-4 sm:hidden">

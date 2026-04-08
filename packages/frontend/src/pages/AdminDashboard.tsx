@@ -37,12 +37,12 @@ export default function AdminDashboard() {
     { to: '/admin/commissions', label: 'Commissions', testId: 'admin-nav-commissions', adminAOnly: true },
   ];
 
-  if (loading) return <div className="text-white text-center mt-16">Loading...</div>;
+  if (loading) return <div className="text-gray-500 dark:text-gray-400 text-center mt-16">Loading...</div>;
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 data-testid="admin-dashboard-title" className="text-2xl font-bold text-white drop-shadow">Admin Dashboard</h1>
+        <h1 data-testid="admin-dashboard-title" className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
         <div className="flex flex-wrap gap-2">
           {navItems.map(n => {
             const disabled = n.adminAOnly && user?.role === 'admin_b';

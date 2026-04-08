@@ -16,7 +16,7 @@ export default function AdminCommissions() {
   if (user?.role === 'admin_b') {
     return (
       <div>
-        <h1 data-testid="admin-commissions-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Commissions</h1>
+        <h1 data-testid="admin-commissions-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Commissions</h1>
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
           <p className="text-gray-500 dark:text-gray-400 text-lg">🔒 Access restricted to Admin-A only</p>
         </div>
@@ -26,7 +26,7 @@ export default function AdminCommissions() {
 
   return (
     <div>
-      <h1 data-testid="admin-commissions-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Commissions</h1>
+      <h1 data-testid="admin-commissions-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Commissions</h1>
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead><tr className="border-b-2 border-gray-200 dark:border-gray-600 text-left text-gray-500 dark:text-gray-400">

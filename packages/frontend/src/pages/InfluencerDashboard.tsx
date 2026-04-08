@@ -59,12 +59,12 @@ export default function InfluencerDashboard() {
 
   return (
     <div>
-      <h1 data-testid="influencer-dashboard-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Influencer Dashboard</h1>
+      <h1 data-testid="influencer-dashboard-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Influencer Dashboard</h1>
 
-      <div data-testid="influencer-tabs" className="flex gap-1 mb-6 bg-white/20 dark:bg-gray-800/50 rounded-xl p-1 overflow-x-auto">
+      <div data-testid="influencer-tabs" className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 overflow-x-auto">
         {tabs.map(t => (
           <button key={t.key} data-testid={`influencer-tab-${t.key}`} onClick={() => { setTab(t.key); setMsg(''); }}
-            className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-lg text-sm font-semibold transition whitespace-nowrap ${tab === t.key ? 'bg-white dark:bg-gray-700 text-primary dark:text-white shadow' : 'text-white/80 hover:text-white'}`}>
+            className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-lg text-sm font-semibold transition whitespace-nowrap ${tab === t.key ? 'bg-white dark:bg-gray-700 text-primary dark:text-white shadow' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>
             {t.icon} {t.label}
           </button>
         ))}

@@ -15,28 +15,28 @@ export default function Layout() {
   const isAdmin = user?.role === 'admin_a' || user?.role === 'admin_b';
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary to-secondary dark:from-gray-900 dark:to-gray-800">
-      <nav data-testid="navbar" className="bg-gradient-to-r from-primary to-secondary dark:from-gray-900 dark:to-gray-800 text-white px-4 sm:px-8 py-4 flex justify-between items-center shadow-lg">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      <nav data-testid="navbar" className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white px-4 sm:px-8 py-4 flex justify-between items-center">
         <div className="flex gap-4 sm:gap-8 items-center">
-          <Link to="/" data-testid="navbar-logo" className="text-xl sm:text-2xl font-bold tracking-tight hover:opacity-90 transition">✨ Inventrix</Link>
-          <Link to="/" data-testid="navbar-store" className="text-sm sm:text-base opacity-90 hover:opacity-100 transition hidden sm:inline">Store</Link>
-          {user && <Link to="/orders" data-testid="navbar-orders" className="text-sm sm:text-base opacity-90 hover:opacity-100 transition">My Orders</Link>}
-          {user?.role === 'influencer' && <Link to="/influencer" data-testid="navbar-influencer" className="text-sm sm:text-base opacity-90 hover:opacity-100 transition">My Dashboard</Link>}
-          {isAdmin && <Link to="/admin" data-testid="navbar-admin" className="text-sm sm:text-base opacity-90 hover:opacity-100 transition">Admin</Link>}
+          <Link to="/" data-testid="navbar-logo" className="text-xl sm:text-2xl font-bold tracking-tight text-primary hover:opacity-90 transition">✨ Inventrix</Link>
+          <Link to="/" data-testid="navbar-store" className="text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-primary transition hidden sm:inline">Store</Link>
+          {user && <Link to="/orders" data-testid="navbar-orders" className="text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-primary transition">My Orders</Link>}
+          {user?.role === 'influencer' && <Link to="/influencer" data-testid="navbar-influencer" className="text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-primary transition">My Dashboard</Link>}
+          {isAdmin && <Link to="/admin" data-testid="navbar-admin" className="text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-primary transition">Admin</Link>}
         </div>
         <div className="flex gap-2 sm:gap-4 items-center">
-          <button onClick={toggleTheme} data-testid="dark-mode-toggle" className="p-2 rounded-full hover:bg-white/20 transition" aria-label="Toggle dark mode">
+          <button onClick={toggleTheme} data-testid="dark-mode-toggle" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition" aria-label="Toggle dark mode">
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           {user ? (
             <>
-              <span className="hidden sm:inline bg-white/20 px-3 py-1.5 rounded-full text-sm">👤 {user.name}</span>
-              <button onClick={handleLogout} data-testid="navbar-logout" className="bg-white text-primary px-4 py-1.5 rounded-full text-sm font-semibold hover:shadow-lg transition">Logout</button>
+              <span className="hidden sm:inline bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full text-sm text-gray-700 dark:text-gray-300">👤 {user.name}</span>
+              <button onClick={handleLogout} data-testid="navbar-logout" className="bg-primary text-white px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-primary-dark transition">Logout</button>
             </>
           ) : (
             <>
-              <Link to="/login" data-testid="navbar-login" className="px-4 py-1.5 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">Login</Link>
-              <Link to="/register" data-testid="navbar-register" className="px-4 py-1.5 bg-white text-primary rounded-full text-sm font-semibold hover:scale-105 transition">Register</Link>
+              <Link to="/login" data-testid="navbar-login" className="px-4 py-1.5 text-gray-600 dark:text-gray-300 hover:text-primary rounded-full text-sm transition">Login</Link>
+              <Link to="/register" data-testid="navbar-register" className="px-4 py-1.5 bg-primary text-white rounded-full text-sm font-semibold hover:bg-primary-dark transition">Register</Link>
             </>
           )}
         </div>

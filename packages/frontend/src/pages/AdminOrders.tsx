@@ -30,7 +30,7 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <h1 data-testid="admin-orders-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Manage Orders</h1>
+      <h1 data-testid="admin-orders-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Manage Orders</h1>
 
       {/* Mobile: card layout */}
       <div className="space-y-4 sm:hidden">

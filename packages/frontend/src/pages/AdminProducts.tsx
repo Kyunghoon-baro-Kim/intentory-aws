@@ -65,7 +65,7 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <h1 data-testid="admin-products-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Manage Products</h1>
+      <h1 data-testid="admin-products-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Manage Products</h1>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-6">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{editing ? 'Edit Product' : 'Add Product'}</h2>
@@ -78,7 +78,7 @@ export default function AdminProducts() {
           </div>
           <div className="flex gap-2">
             <input data-testid="admin-product-image" placeholder="Image URL" value={form.imageUrl || ''} onChange={e => setForm({ ...form, imageUrl: e.target.value })} className="flex-1 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:border-primary outline-none" />
-            <button type="button" onClick={handleGenerateImage} disabled={generating || !form.name} className="bg-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 whitespace-nowrap">
+            <button type="button" onClick={handleGenerateImage} disabled={generating || !form.name} className="bg-secondary text-white px-4 py-3 rounded-lg font-semibold hover:bg-primary-dark transition disabled:opacity-50 whitespace-nowrap">
               {generating ? 'Generating...' : '🎨 AI Generate'}
             </button>
           </div>

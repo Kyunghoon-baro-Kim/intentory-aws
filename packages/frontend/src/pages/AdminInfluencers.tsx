@@ -29,7 +29,7 @@ export default function AdminInfluencers() {
 
   return (
     <div>
-      <h1 data-testid="admin-influencers-title" className="mb-6 text-2xl font-bold text-white drop-shadow">Influencer Management</h1>
+      <h1 data-testid="admin-influencers-title" className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Influencer Management</h1>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-6">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Create Collaboration</h2>

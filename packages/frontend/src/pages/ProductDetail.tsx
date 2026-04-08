@@ -48,8 +48,8 @@ export default function ProductDetail() {
     finally { setOrdering(false); }
   };
 
-  if (loading) return <div className="text-white text-center mt-16">Loading...</div>;
-  if (!product) return <div className="text-white text-center mt-16">Product not found.</div>;
+  if (loading) return <div className="text-gray-500 dark:text-gray-400 text-center mt-16">Loading...</div>;
+  if (!product) return <div className="text-gray-500 dark:text-gray-400 text-center mt-16">Product not found.</div>;
 
   return (
     <div className="max-w-3xl mx-auto">
