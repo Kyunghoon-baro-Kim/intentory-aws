@@ -28,6 +28,11 @@ export class ReferralsController {
   @Roles(Role.influencer)
   getStats(@CurrentUser() user: any) { return this.referralsService.getStats(user.id); }
 
+  @Get('stats/summary')
+  @UseGuards(RolesGuard)
+  @Roles(Role.influencer)
+  getStatsSummary(@CurrentUser() user: any) { return this.referralsService.getStatsSummary(user.id); }
+
   @Get('commissions')
   @UseGuards(RolesGuard)
   @Roles(Role.admin_a)
