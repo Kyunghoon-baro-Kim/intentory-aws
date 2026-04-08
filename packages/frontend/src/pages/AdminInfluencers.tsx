@@ -18,6 +18,7 @@ export default function AdminInfluencers() {
 
   const createCollab = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!collab.influencerProfileId || !collab.productId) { setMsg('Please select influencer and product'); return; }
     const res = await fetch('/api/collaborations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

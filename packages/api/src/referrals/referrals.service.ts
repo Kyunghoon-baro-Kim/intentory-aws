@@ -36,6 +36,13 @@ export class ReferralsService {
     return this.prisma.commission.update({ where: { id }, data: { status: newStatus as any } });
   }
 
+  async approveCommissionsByOrder(orderId: number) {
+    await this.prisma.commission.updateMany({
+      where: { orderId, status: 'pending' },
+      data: { status: 'approved' },
+    });
+  }
+
   getStats(userId: number) {
     return this.prisma.referralLink.findMany({ where: { userId }, include: { commissions: true, product: { select: { name: true, price: true } } } });
   }
