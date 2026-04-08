@@ -8,6 +8,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState({ name: '', description: '', price: 0, stock: 0, imageUrl: '' });
+  const [generating, setGenerating] = useState(false);
 
   const load = () => { fetch('/api/products').then(r => r.json()).then(setProducts); };
   useEffect(load, []);
@@ -25,10 +26,38 @@ export default function AdminProducts() {
     load();
   };
 
+  const handleGenerateImage = async () => {
+    if (!form.name) return;
+    setGenerating(true);
+    try {
+      const res = await fetch('/api/products/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ prompt: `Product photo of ${form.name}. ${form.description || ''}`.trim() })
+      });
+      const base64 = await res.json();
+      setForm(f => ({ ...f, imageUrl: `data:image/png;base64,${base64}` }));
+    } catch {
+      alert('Image generation failed');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this product?')) return;
     await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     load();
+  };
+
+  const startEdit = (p: Product) => {
+    setEditing(p);
+    setForm({ name: p.name, description: p.description ?? '', price: p.price, stock: p.stock, imageUrl: p.imageUrl ?? '' });
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setForm({ name: '', description: '', price: 0, stock: 0, imageUrl: '' });
   };
 
   return (
@@ -44,10 +73,16 @@ export default function AdminProducts() {
             <input data-testid="admin-product-price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={e => setForm({ ...form, price: Number(e.target.value) })} required className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:border-primary outline-none" />
             <input data-testid="admin-product-stock" type="number" placeholder="Stock" value={form.stock} onChange={e => setForm({ ...form, stock: Number(e.target.value) })} required className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:border-primary outline-none" />
           </div>
-          <input data-testid="admin-product-image" placeholder="Image URL" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:border-primary outline-none" />
+          <div className="flex gap-2">
+            <input data-testid="admin-product-image" placeholder="Image URL" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} className="flex-1 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:border-primary outline-none" />
+            <button type="button" onClick={handleGenerateImage} disabled={generating || !form.name} className="bg-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 whitespace-nowrap">
+              {generating ? 'Generating...' : '🎨 AI Generate'}
+            </button>
+          </div>
+          {form.imageUrl && <img src={form.imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg" />}
           <div className="flex gap-3">
             <button data-testid="admin-product-submit" type="submit" className="flex-1 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition">{editing ? 'Update' : 'Add'} Product</button>
-            {editing && <button type="button" onClick={() => { setEditing(null); setForm({ name: '', description: '', price: 0, stock: 0, imageUrl: '' }); }} className="bg-gray-500 text-white px-6 py-3 rounded-lg">Cancel</button>}
+            {editing && <button type="button" onClick={cancelEdit} className="bg-gray-500 text-white px-6 py-3 rounded-lg">Cancel</button>}
           </div>
         </form>
       </div>
@@ -64,7 +99,7 @@ export default function AdminProducts() {
                 <td>${p.price}</td>
                 <td>{p.stock}</td>
                 <td className="flex gap-2 py-3">
-                  <button data-testid={`admin-product-edit-${p.id}`} onClick={() => { setEditing(p); setForm({ name: p.name, description: p.description ?? '', price: p.price, stock: p.stock, imageUrl: p.imageUrl ?? '' }); }} className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-lg text-xs font-semibold">Edit</button>
+                  <button data-testid={`admin-product-edit-${p.id}`} onClick={() => startEdit(p)} className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-lg text-xs font-semibold">Edit</button>
                   <button data-testid={`admin-product-delete-${p.id}`} onClick={() => handleDelete(p.id)} className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">Delete</button>
                 </td>
               </tr>
