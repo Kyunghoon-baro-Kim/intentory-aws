@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CollaborationsService } from './collaborations.service';
+import { CreateCollaborationDto } from './dto/create-collaboration.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -14,8 +15,8 @@ export class CollaborationsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.admin_a, Role.admin_b)
-  create(@Body() body: { influencerProfileId: number; productId: number; terms: string; compensation?: string }) {
-    return this.collabService.create(body);
+  create(@Body() dto: CreateCollaborationDto) {
+    return this.collabService.create(dto);
   }
 
   @Get()
@@ -26,8 +27,7 @@ export class CollaborationsController {
   @Get('my')
   @UseGuards(RolesGuard)
   @Roles(Role.influencer)
-  async findMy(@CurrentUser() user: any) {
-    // influencer profile lookup needed
+  findMy(@CurrentUser() user: any) {
     return this.collabService.findByInfluencer(user.id);
   }
 

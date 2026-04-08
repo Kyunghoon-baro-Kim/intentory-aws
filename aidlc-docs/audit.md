@@ -283,3 +283,11 @@
 **Context**: CONSTRUCTION PHASE 시작.
 
 ---
+
+## Dev C 작업 계획 요청
+**Timestamp**: 2026-04-08T14:15:14+09:00
+**User Input**: "내가 Dev C 라는 개발자야. 앞으로 내가할일 계획해. Dev A, B, D가 각각 위 github에 branch 새로 만들어서 작업하고있어."
+**AI Response**: Dev C 작업 계획 수립. Unit 3 (Reviews & Influencer) 담당. Branch 생성 후 작업 진행.
+**Context**: CONSTRUCTION - Dev C 작업 계획
+
+---

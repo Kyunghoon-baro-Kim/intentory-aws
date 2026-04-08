@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InfluencerService } from './influencer.service';
+import { CreateInfluencerProfileDto, UpdateInfluencerProfileDto } from './dto/influencer-profile.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -23,12 +24,14 @@ export class InfluencerController {
   @Post('profile')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.influencer)
-  createProfile(@CurrentUser() user: any, @Body() body: { channelUrl: string; subscribers: number; category: string; bio?: string }) {
-    return this.influencerService.createProfile(user.id, body);
+  createProfile(@CurrentUser() user: any, @Body() dto: CreateInfluencerProfileDto) {
+    return this.influencerService.createProfile(user.id, dto);
   }
 
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.influencer)
-  updateProfile(@CurrentUser() user: any, @Body() body: any) { return this.influencerService.updateProfile(user.id, body); }
+  updateProfile(@CurrentUser() user: any, @Body() dto: UpdateInfluencerProfileDto) {
+    return this.influencerService.updateProfile(user.id, dto);
+  }
 }
