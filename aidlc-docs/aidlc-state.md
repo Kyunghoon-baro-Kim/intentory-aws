@@ -29,9 +29,9 @@
 - [x] INCEPTION - Workflow Planning (2026-04-08T13:53:44+09:00)
 - [x] INCEPTION - Application Design (2026-04-08T13:53:44+09:00, 축소판 11모듈)
 - [x] INCEPTION - Units Generation (2026-04-08T13:53:44+09:00, 축소판 4 unit)
-- **Current Stage**: CONSTRUCTION 대기
-- [ ] CONSTRUCTION - Unit 1: Backend Core (Dev A)
-- [ ] CONSTRUCTION - Unit 2: Products & Orders (Dev B)
-- [ ] CONSTRUCTION - Unit 3: Reviews & Influencer (Dev C)
+- [x] CONSTRUCTION - Unit 1: Backend Core (Dev A)
+- [x] CONSTRUCTION - Unit 2: Products & Orders (Dev B)
+- [x] CONSTRUCTION - Unit 3: Reviews & Influencer (Dev C)
+- **Current Stage**: CONSTRUCTION - Unit 4: Frontend (Dev D)
 - [ ] CONSTRUCTION - Unit 4: Frontend (Dev D)
 - [ ] CONSTRUCTION - Build and Test

@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  customer
+  admin_a
+  admin_b
+  influencer
+}
+
+enum OrderStatus {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum CollaborationStatus {
+  proposed
+  accepted
+  rejected
+  in_progress
+  completed
+}
+
+enum CommissionStatus {
+  pending
+  approved
+  paid
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+
+  orders             Order[]
+  reviews            Review[]
+  influencerProfile  InfluencerProfile?
+  referralLinks      ReferralLink[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+
+  orderItems     OrderItem[]
+  reviews        Review[]
+  collaborations Collaboration[]
+  referralLinks  ReferralLink[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  subtotal  Float
+  gst       Float
+  total     Float
+  status    OrderStatus @default(pending)
+  referralCode String?
+  createdAt DateTime    @default(now())
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        Int   @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  rating    Int
+  comment   String
+  imageUrls String[]
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model InfluencerProfile {
+  id            Int    @id @default(autoincrement())
+  userId        Int    @unique
+  channelUrl    String
+  subscribers   Int    @default(0)
+  category      String
+  bio           String?
+  isPublic      Boolean @default(true)
+
+  user           User            @relation(fields: [userId], references: [id])
+  collaborations Collaboration[]
+}
+
+model Collaboration {
+  id                  Int                 @id @default(autoincrement())
+  influencerProfileId Int
+  productId           Int
+  terms               String
+  compensation        String?
+  status              CollaborationStatus @default(proposed)
+  createdAt           DateTime            @default(now())
+
+  influencerProfile InfluencerProfile @relation(fields: [influencerProfileId], references: [id])
+  product           Product           @relation(fields: [productId], references: [id])
+}
+
+model ReferralLink {
+  id         Int    @id @default(autoincrement())
+  userId     Int
+  productId  Int
+  code       String @unique
+  createdAt  DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  commissions Commission[]
+}
+
+model Commission {
+  id             Int              @id @default(autoincrement())
+  referralLinkId Int
+  orderId        Int
+  amount         Float
+  status         CommissionStatus @default(pending)
+  createdAt      DateTime         @default(now())
+
+  referralLink ReferralLink @relation(fields: [referralLinkId], references: [id])
+}
