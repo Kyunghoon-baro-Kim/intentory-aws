@@ -5,6 +5,9 @@ import { ConflictException, UnauthorizedException, ForbiddenException } from '@n
 import * as bcrypt from 'bcrypt';
 
 vi.mock('bcrypt', () => ({ hash: vi.fn(), compare: vi.fn() }));
+vi.mock('@prisma/client', () => ({
+  Role: { customer: 'customer', admin_a: 'admin_a', admin_b: 'admin_b', influencer: 'influencer' },
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
