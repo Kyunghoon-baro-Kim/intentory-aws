@@ -46,7 +46,11 @@ export class OrdersService {
     return order;
   }
 
-  updateStatus(id: number, status: string) {
-    return this.prisma.order.update({ where: { id }, data: { status: status as any } });
+  async updateStatus(id: number, status: string) {
+    const order = await this.prisma.order.update({ where: { id }, data: { status: status as any } });
+    if (status === 'delivered' && order.referralCode) {
+      await this.referrals.approveCommissionsByOrder(id);
+    }
+    return order;
   }
 }

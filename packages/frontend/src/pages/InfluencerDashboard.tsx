@@ -27,10 +27,10 @@ export default function InfluencerDashboard() {
     fetch('/api/influencer/profile', { headers }).then(r => r.ok ? r.json() : null).then(p => {
       if (p) { setProfile(p); setProfileForm({ channelUrl: p.channelUrl, subscribers: p.subscribers, category: p.category, bio: p.bio ?? '' }); }
     }).catch(() => {});
-    fetch('/api/collaborations/my', { headers }).then(r => r.json()).then(setCollabs).catch(() => {});
-    fetch('/api/referrals/my-links', { headers }).then(r => r.json()).then(setLinks).catch(() => {});
-    fetch('/api/referrals/commissions/my', { headers }).then(r => r.json()).then(setCommissions).catch(() => {});
-    fetch('/api/products').then(r => r.json()).then(setProducts);
+    fetch('/api/collaborations/my', { headers }).then(r => r.ok ? r.json() : []).then(d => setCollabs(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch('/api/referrals/my-links', { headers }).then(r => r.ok ? r.json() : []).then(d => setLinks(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch('/api/referrals/commissions/my', { headers }).then(r => r.ok ? r.json() : []).then(d => setCommissions(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch('/api/products').then(r => r.ok ? r.json() : []).then(d => setProducts(Array.isArray(d) ? d : [])).catch(() => {});
   }, [token]);
 
   const saveProfile = async (e: React.FormEvent) => {

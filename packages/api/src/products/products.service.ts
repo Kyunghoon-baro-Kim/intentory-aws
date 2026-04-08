@@ -38,7 +38,7 @@ export class ProductsService {
         imageGenerationConfig: { numberOfImages: 1, height: 512, width: 512 },
       });
       const command = new InvokeModelCommand({
-        modelId: 'amazon.titan-image-generator-v1',
+        modelId: 'amazon.nova-canvas-v1:0',
         contentType: 'application/json',
         accept: 'application/json',
         body,
