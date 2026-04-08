@@ -26,20 +26,24 @@ export class ProductsService {
 
   delete(id: number) { return this.prisma.product.delete({ where: { id } }); }
 
-  async generateImage(prompt: string): Promise<string> {
-    const body = JSON.stringify({
-      taskType: 'TEXT_IMAGE',
-      textToImageParams: { text: prompt },
-      imageGenerationConfig: { numberOfImages: 1, height: 512, width: 512 },
-    });
-    const command = new InvokeModelCommand({
-      modelId: 'amazon.titan-image-generator-v1',
-      contentType: 'application/json',
-      accept: 'application/json',
-      body,
-    });
-    const response = await this.bedrock.send(command);
-    const result = JSON.parse(new TextDecoder().decode(response.body));
-    return result.images[0];
+  async generateImage(prompt: string): Promise<{ image: string }> {
+    try {
+      const body = JSON.stringify({
+        taskType: 'TEXT_IMAGE',
+        textToImageParams: { text: prompt },
+        imageGenerationConfig: { numberOfImages: 1, height: 512, width: 512 },
+      });
+      const command = new InvokeModelCommand({
+        modelId: 'amazon.titan-image-generator-v1',
+        contentType: 'application/json',
+        accept: 'application/json',
+        body,
+      });
+      const response = await this.bedrock.send(command);
+      const result = JSON.parse(new TextDecoder().decode(response.body));
+      return { image: result.images[0] };
+    } catch (error) {
+      throw new NotFoundException('Image generation unavailable. Check AWS Bedrock credentials and model access.');
+    }
   }
 }
