@@ -21,11 +21,14 @@ const statusColor: Record<string, string> = {
 export default function Orders() {
   const { token } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json()).then(setOrders);
+      .then(r => r.json()).then(setOrders).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
+
+  if (loading) return <div className="text-white text-center mt-16">Loading...</div>;
 
   return (
     <div>
@@ -37,7 +40,7 @@ export default function Orders() {
               <h3 className="font-bold text-gray-900 dark:text-white">Order #{o.id}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(o.createdAt).toLocaleDateString()}</p>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right">
               <p className="text-sm text-gray-500 dark:text-gray-400">Subtotal: ${o.subtotal.toFixed(2)}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">GST (10%): ${o.gst.toFixed(2)}</p>
               <p className="text-lg font-bold text-gray-900 dark:text-white">${o.total.toFixed(2)}</p>
