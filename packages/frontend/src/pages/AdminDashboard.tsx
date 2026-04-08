@@ -3,96 +3,92 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface Analytics {
-  summary: {
-    totalRevenue: number;
-    totalOrders: number;
-    totalProducts: number;
-    lowStockItems: number;
-  };
+  summary: { totalRevenue: number; totalOrders: number; totalProducts: number; lowStockItems: number };
   recentOrders: any[];
   topProducts: any[];
-  ordersByStatus: any[];
 }
 
 export default function AdminDashboard() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
   useEffect(() => {
-    fetch('/api/analytics/dashboard', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(setAnalytics);
+    fetch('/api/analytics/dashboard', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json()).then(setAnalytics).catch(() => {});
   }, [token]);
 
-  if (!analytics) return <div>Loading...</div>;
+  const cards = [
+    { label: 'Total Revenue', value: analytics ? `$${analytics.summary.totalRevenue.toFixed(2)}` : '-', color: 'text-green-600 dark:text-green-400' },
+    { label: 'Total Orders', value: analytics?.summary.totalOrders ?? '-', color: 'text-blue-600 dark:text-blue-400' },
+    { label: 'Total Products', value: analytics?.summary.totalProducts ?? '-', color: 'text-cyan-600 dark:text-cyan-400' },
+    { label: 'Low Stock', value: analytics?.summary.lowStockItems ?? '-', color: 'text-red-600 dark:text-red-400' },
+  ];
+
+  const navItems = [
+    { to: '/admin/products', label: 'Products', testId: 'admin-nav-products' },
+    { to: '/admin/orders', label: 'Orders', testId: 'admin-nav-orders' },
+    { to: '/admin/inventory', label: 'Inventory', testId: 'admin-nav-inventory' },
+    { to: '/admin/influencers', label: 'Influencers', testId: 'admin-nav-influencers' },
+    { to: '/admin/commissions', label: 'Commissions', testId: 'admin-nav-commissions', adminAOnly: true },
+  ];
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Admin Dashboard</h1>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <Link to="/admin/products"><button style={{ background: '#007bff', color: 'white' }}>Manage Products</button></Link>
-          <Link to="/admin/orders"><button style={{ background: '#007bff', color: 'white' }}>Manage Orders</button></Link>
-          <Link to="/admin/inventory"><button style={{ background: '#007bff', color: 'white' }}>Inventory</button></Link>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h1 data-testid="admin-dashboard-title" className="text-2xl font-bold text-white drop-shadow">Admin Dashboard</h1>
+        <div className="flex flex-wrap gap-2">
+          {navItems.map(n => {
+            const disabled = n.adminAOnly && user?.role === 'admin_b';
+            return (
+              <Link key={n.to} to={disabled ? '#' : n.to} data-testid={n.testId}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${disabled ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed' : 'bg-white dark:bg-gray-700 text-primary dark:text-white hover:shadow-lg'}`}
+                onClick={e => disabled && e.preventDefault()}>
+                {n.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Revenue</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#28a745' }}>${analytics.summary.totalRevenue.toFixed(2)}</p>
-        </div>
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Orders</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#007bff' }}>{analytics.summary.totalOrders}</p>
-        </div>
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Products</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#17a2b8' }}>{analytics.summary.totalProducts}</p>
-        </div>
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Low Stock Items</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#dc3545' }}>{analytics.summary.lowStockItems}</p>
-        </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {cards.map((c, i) => (
+          <div key={i} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{c.label}</p>
+            <p className={`text-2xl font-bold ${c.color}`}>{c.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Recent Orders</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid #ddd' }}>
-                <th style={{ padding: '0.5rem', textAlign: 'left' }}>Order ID</th>
-                <th style={{ padding: '0.5rem', textAlign: 'left' }}>Customer</th>
-                <th style={{ padding: '0.5rem', textAlign: 'left' }}>Total</th>
-                <th style={{ padding: '0.5rem', textAlign: 'left' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.recentOrders.map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '0.5rem' }}>#{order.id}</td>
-                  <td style={{ padding: '0.5rem' }}>{order.user_name}</td>
-                  <td style={{ padding: '0.5rem' }}>${order.total.toFixed(2)}</td>
-                  <td style={{ padding: '0.5rem' }}>{order.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Top Products</h2>
-          {analytics.topProducts.map((product, i) => (
-            <div key={i} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eee' }}>
-              <p style={{ fontWeight: 'bold' }}>{product.name}</p>
-              <p style={{ fontSize: '0.9rem', color: '#666' }}>Sold: {product.total_sold} | Revenue: ${product.revenue.toFixed(2)}</p>
+      {analytics && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Recent Orders</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b-2 border-gray-200 dark:border-gray-600 text-left text-gray-500 dark:text-gray-400">
+                  <th className="pb-2">ID</th><th className="pb-2">Customer</th><th className="pb-2">Total</th><th className="pb-2">Status</th>
+                </tr></thead>
+                <tbody>
+                  {analytics.recentOrders.map(o => (
+                    <tr key={o.id} className="border-b border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                      <td className="py-2">#{o.id}</td><td>{o.user_name}</td><td>${o.total.toFixed(2)}</td><td>{o.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          </div>
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Top Products</h2>
+            {analytics.topProducts.map((p: any, i: number) => (
+              <div key={i} className="mb-3 pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <p className="font-semibold text-gray-900 dark:text-white">{p.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Sold: {p.total_sold} | Revenue: ${p.revenue.toFixed(2)}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
