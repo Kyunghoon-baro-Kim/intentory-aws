@@ -34,4 +34,4 @@
 - [x] CONSTRUCTION - Unit 3: Reviews & Influencer (Dev C)
 - **Current Stage**: CONSTRUCTION - Unit 4: Frontend (Dev D)
 - [x] CONSTRUCTION - Unit 4: Frontend (Dev D)
-- [ ] CONSTRUCTION - Build and Test
+- [x] CONSTRUCTION - Build and Test
