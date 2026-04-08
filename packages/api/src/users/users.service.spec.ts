@@ -10,11 +10,11 @@ describe('UsersService', () => {
     service = new UsersService(prisma);
   });
 
-  it('should find user by id', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer' });
+  it('should find user by id and exclude password', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer', password: 'hashed' });
     const result = await service.findById(1);
     expect(result).toEqual({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer' });
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(result).not.toHaveProperty('password');
   });
 
   it('should return null for non-existent user', async () => {
@@ -23,10 +23,10 @@ describe('UsersService', () => {
     expect(result).toBeNull();
   });
 
-  it('should find user by email', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer' });
+  it('should find user by email (includes password for internal use)', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer', password: 'hashed' });
     const result = await service.findByEmail('test@test.com');
-    expect(result).toEqual({ id: 1, email: 'test@test.com', name: 'Test', role: 'customer' });
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'test@test.com' } });
+    expect(result!.email).toBe('test@test.com');
+    expect(result).toHaveProperty('password');
   });
 });

@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, CreateAdminDto } from './dto/auth.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 
 @Controller('auth')
@@ -25,5 +26,11 @@ export class AuthController {
   @Roles(Role.admin_a)
   createAdmin(@Body() dto: CreateAdminDto) {
     return this.authService.createAdmin(dto);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  me(@CurrentUser() user: { id: number; email: string; role: string; name: string }) {
+    return user;
   }
 }
