@@ -7,51 +7,45 @@ interface Order {
   gst: number;
   total: number;
   status: string;
-  created_at: string;
+  createdAt: string;
 }
+
+const statusColor: Record<string, string> = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+  delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+};
 
 export default function Orders() {
   const { token } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    fetch('/api/orders', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(setOrders);
+    fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json()).then(setOrders);
   }, [token]);
-
-  const statusColors: Record<string, string> = {
-    pending: '#ffc107',
-    processing: '#17a2b8',
-    shipped: '#007bff',
-    delivered: '#28a745',
-    cancelled: '#dc3545'
-  };
 
   return (
     <div>
-      <h1 style={{ marginBottom: '2rem' }}>My Orders</h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {orders.map(order => (
-          <div key={order.id} style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3>Order #{order.id}</h3>
-                <p style={{ color: '#666', fontSize: '0.9rem' }}>{new Date(order.created_at).toLocaleDateString()}</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.9rem', color: '#666', margin: '0.25rem 0' }}>Subtotal: ${order.subtotal.toFixed(2)}</p>
-                <p style={{ fontSize: '0.9rem', color: '#666', margin: '0.25rem 0' }}>GST (10%): ${order.gst.toFixed(2)}</p>
-                <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Total: ${order.total.toFixed(2)}</p>
-                <span style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', fontSize: '0.9rem', background: statusColors[order.status], color: 'white' }}>
-                  {order.status}
-                </span>
-              </div>
+      <h1 data-testid="orders-title" className="mb-6 text-2xl font-bold text-white drop-shadow">My Orders</h1>
+      <div className="space-y-4">
+        {orders.map(o => (
+          <div key={o.id} data-testid={`order-card-${o.id}`} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex flex-col sm:flex-row justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-gray-900 dark:text-white">Order #{o.id}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(o.createdAt).toLocaleDateString()}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Subtotal: ${o.subtotal.toFixed(2)}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">GST (10%): ${o.gst.toFixed(2)}</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">${o.total.toFixed(2)}</p>
+              <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold ${statusColor[o.status] ?? ''}`}>{o.status}</span>
             </div>
           </div>
         ))}
+        {orders.length === 0 && <p className="text-gray-300">No orders yet.</p>}
       </div>
     </div>
   );

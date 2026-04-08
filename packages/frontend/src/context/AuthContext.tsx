@@ -1,17 +1,19 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+type Role = 'customer' | 'admin_a' | 'admin_b' | 'influencer';
+
 interface User {
   id: number;
   email: string;
   name: string;
-  role: string;
+  role: Role;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, role: Role) => Promise<void>;
   logout: () => void;
 }
 
@@ -22,8 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    const stored = localStorage.getItem('user');
+    if (stored) setUser(JSON.parse(stored));
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -40,11 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user', JSON.stringify(data.user));
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, role: Role) => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name })
+      body: JSON.stringify({ email, password, name, role })
     });
     if (!res.ok) throw new Error('Registration failed');
     const data = await res.json();
@@ -69,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 };

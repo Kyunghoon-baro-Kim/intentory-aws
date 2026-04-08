@@ -283,3 +283,61 @@
 **Context**: CONSTRUCTION PHASE 시작.
 
 ---
+
+## CONSTRUCTION - Unit 4: Frontend (Dev D) 시작
+**Timestamp**: 2026-04-08T14:14:48+09:00
+**User Input**: "진행해"
+**AI Response**: Unit 4: Frontend Construction phase 시작. Functional Design 단계 진입.
+**Context**: CONSTRUCTION phase - Unit 4: Frontend, feature/unit4-frontend 브랜치
+
+---
+
+## CONSTRUCTION - Unit 4: Stage Assessment
+**Timestamp**: 2026-04-08T14:14:50+09:00
+**AI Response**: Unit 4 Construction 단계 평가:
+- Functional Design: EXECUTE
+- NFR Requirements: SKIP (축소판, 이미 정의됨)
+- NFR Design: SKIP
+- Infrastructure Design: SKIP (Vite 유지)
+- Code Generation: EXECUTE
+**Context**: Stage assessment for Unit 4
+
+---
+
+## CONSTRUCTION - Unit 4: Functional Design 시작
+**Timestamp**: 2026-04-08T14:14:52+09:00
+**AI Response**: Functional Design 질문 파일 생성 중
+**Context**: Functional Design Step 1-4
+
+---
+
+## CONSTRUCTION - Unit 4: Functional Design 답변 확인
+**Timestamp**: 2026-04-08T14:16:51+09:00
+**User Input**: "완료 했어"
+**AI Response**: 질문 파일 답변 확인 완료. Q1:A, Q2:B, Q3:A, Q4:A, Q5:C, Q6:A. 모호한 답변 없음. Functional Design 산출물 생성 진행.
+**Context**: Functional Design Step 5 완료, Step 6 진입
+
+---
+
+## CONSTRUCTION - Unit 4: Functional Design 승인
+**Timestamp**: 2026-04-08T14:19:03+09:00
+**User Input**: "내가 Unit 플랜까지 만들었는데 바로 코드 생성을 해야해? 다른 유닛 기다렸다가 같이해야 하는거아냐?"
+**AI Response**: Unit 의존성 설명. API endpoint가 Unit 1에서 이미 확정됨. A/B/C 옵션 제시.
+**Context**: Functional Design 완료, Code Generation 진입 전 의존성 확인
+
+---
+
+## CONSTRUCTION - Unit 4: Code Generation 시작
+**Timestamp**: 2026-04-08T14:21:52+09:00
+**User Input**: "그럼 코드 만들어줘"
+**AI Response**: Code Generation Part 1 (Planning) 시작. API endpoint 확정 상태이므로 실제 API 호출 코드로 작성.
+**Context**: Code Generation 진입
+
+---
+
+## CONSTRUCTION - Unit 4: Code Generation 완료
+**Timestamp**: 2026-04-08T14:22:30+09:00
+**AI Response**: Code Generation 13개 Step 모두 완료. TypeScript 컴파일 에러 없음. Vite 빌드 성공.
+**Context**: Code Generation Part 2 완료
+
+---
