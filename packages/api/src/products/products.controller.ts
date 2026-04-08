@@ -31,4 +31,11 @@ export class ProductsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.admin_a, Role.admin_b)
   delete(@Param('id', ParseIntPipe) id: number) { return this.productsService.delete(id); }
+
+  @Post('generate-image')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.admin_a, Role.admin_b)
+  generateImage(@Body() body: { prompt: string }) {
+    return this.productsService.generateImage(body.prompt);
+  }
 }
