@@ -1,44 +1,47 @@
 # Build and Test Summary
 
 ## Build Status
-- **Build Tool**: NestJS CLI + TypeScript 5.8.3
+- **Build Tool**: pnpm + NestJS CLI + Vite
 - **Build Status**: ✅ Success
-- **Build Artifacts**: `packages/api/dist/`
-- **Build Time**: ~3s
+- **Build Time**: ~2s (API) + ~0.6s (Frontend)
+- **Build Artifacts**:
+  - `packages/api/dist/` — NestJS 컴파일 결과
+  - `packages/frontend/dist/` — Vite 번들 (index.html, CSS 28.83KB, JS 215.39KB)
 
 ## Test Execution Summary
 
 ### Unit Tests
-- **Total Tests**: 53
-- **Passed**: 53
+- **Total Tests**: 71
+- **Passed**: 71
 - **Failed**: 0
-- **Coverage**: 9 service files (all modules)
+- **Test Files**: 13/13 passed
 - **Status**: ✅ Pass
-- **Duration**: ~900ms
 
 ### Integration Tests
-- **Test Scenarios**: 4 (주문 흐름, 리뷰 흐름, 레퍼럴 흐름, 협업 흐름)
-- **Status**: 📋 지침 작성 완료 (DB 환경 이슈로 자동화 테스트 보류)
+- **Test Scenarios**: 4 (인증, 상품→주문, Influencer, Admin)
+- **Automated**: 1 (influencer-flow.integration.spec.ts — 4 tests passed)
+- **Status**: ✅ Pass
 
 ### Performance Tests
-- **Status**: N/A (축소판 scope — 2시간 제약)
+- **Status**: N/A (축소판 — 스킵)
 
 ### Additional Tests
-- **Contract Tests**: N/A (단일 API 서버)
-- **Security Tests**: N/A (Security Extension Disabled)
-- **E2E Tests**: N/A (Frontend Unit 4 완료 후 진행)
+- **Contract Tests**: N/A
+- **Security Tests**: N/A (축소판)
+- **E2E Tests**: N/A
 
-## Known Issues
-1. **Prisma P1010**: `prisma db push` 명령이 PostgreSQL 연결 시 P1010 에러 발생 → SQL 직접 실행으로 우회
-2. **DTO TS2564**: 모든 DTO에 `!` (definite assignment) 추가 필요 → 수정 완료
+## Deploy Script 점검 결과
+수정된 항목:
+1. ✅ API 포트 불일치 수정 (3003 → PORT=3000 환경변수 설정)
+2. ✅ Node.js 중복 설치 제거 (NodeSource 22.x만 사용)
+3. ✅ PostgreSQL 16 설치 추가 (EC2 내 DB)
+4. ✅ `prisma generate` + `prisma db push` + `seed` 추가
+5. ✅ DATABASE_URL 프로덕션 설정 추가
+6. ✅ 불필요한 포트 3000 Security Group rule 제거
+7. ✅ destroy.sh 기본 리전 일치 (ap-northeast-2)
 
 ## Overall Status
 - **Build**: ✅ Success
-- **Unit Tests**: ✅ 53/53 Passed
-- **Integration Tests**: 📋 지침 작성 완료
-- **Ready for Operations**: ⚠️ DB 연결 환경 해결 후 가능
-
-## Next Steps
-1. DB 환경 이슈 해결 (Prisma P1010 또는 배포 환경에서 직접 연결)
-2. Unit 4 (Frontend) 완료 후 E2E 테스트
-3. Docker Compose 구성 (NFR-03)
+- **All Tests**: ✅ Pass (71/71)
+- **Deploy Script**: ✅ 점검 완료, 7개 이슈 수정
+- **Ready for Deployment**: Yes
