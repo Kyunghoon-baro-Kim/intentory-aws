@@ -341,3 +341,20 @@
 **Context**: Code Generation Part 2 완료
 
 ---
+
+## CONSTRUCTION - Build and Test
+**Timestamp**: 2026-04-08T15:13:17+09:00
+**User Input**: "응 빌드하고 deploy파일을 점검해."
+**AI Response**: Build and Test 단계 실행. pnpm install → prisma generate → pnpm build 성공. Unit test 71/71 통과. deploy.sh 7개 이슈 발견 및 수정 (포트 불일치, Node.js 중복설치, DB 누락, prisma generate 누락, DATABASE_URL 미설정, 불필요 SG rule, destroy.sh 리전 불일치).
+**Context**: CONSTRUCTION - Build and Test 완료
+
+**Build Status**: Success
+**Test Status**: 71/71 Pass
+**Deploy Script Issues Fixed**: 7
+**Files Generated**:
+- aidlc-docs/construction/build-and-test/build-instructions.md
+- aidlc-docs/construction/build-and-test/unit-test-instructions.md
+- aidlc-docs/construction/build-and-test/integration-test-instructions.md
+- aidlc-docs/construction/build-and-test/build-and-test-summary.md
+
+---

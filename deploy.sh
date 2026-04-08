@@ -28,7 +28,6 @@ else
   read -p "Select profile number or enter profile name [default]: " PROFILE_INPUT
   
   if [[ "$PROFILE_INPUT" =~ ^[0-9]+$ ]]; then
-    # Number selected
     idx=$((PROFILE_INPUT-1))
     if [[ $idx -ge 0 && $idx -lt ${#PROFILES[@]} ]]; then
       AWS_PROFILE="${PROFILES[$idx]}"
@@ -37,7 +36,6 @@ else
       AWS_PROFILE="default"
     fi
   else
-    # Name entered or empty
     AWS_PROFILE="${PROFILE_INPUT:-default}"
   fi
 fi
@@ -98,12 +96,11 @@ else
   echo "Created security group: $SG_ID"
 fi
 
-# Add security group rules
+# Add security group rules (only SSH, HTTP, HTTPS needed)
 echo "Configuring security group rules..."
 aws ec2 authorize-security-group-ingress $AWS_OPTS --group-id $SG_ID --protocol tcp --port 22 --cidr ${MY_IP}/32 &>/dev/null || true
 aws ec2 authorize-security-group-ingress $AWS_OPTS --group-id $SG_ID --protocol tcp --port 80 --cidr ${MY_IP}/32 &>/dev/null || true
 aws ec2 authorize-security-group-ingress $AWS_OPTS --group-id $SG_ID --protocol tcp --port 443 --cidr ${MY_IP}/32 &>/dev/null || true
-aws ec2 authorize-security-group-ingress $AWS_OPTS --group-id $SG_ID --protocol tcp --port 3000 --cidr ${MY_IP}/32 &>/dev/null || true
 echo "Security group rules configured."
 
 # Create key pair if it doesn't exist
@@ -121,15 +118,34 @@ else
   echo "Key pair saved to ${KEY_NAME}.pem"
 fi
 
-# User data script
+# User data script — install Node.js 22, pnpm, pm2, nginx, PostgreSQL 16
 USER_DATA=$(cat <<'EOF'
 #!/bin/bash
-yum update -y
-yum clean all
-yum install -y gcc gcc-c++ make git nodejs nginx
+set -e
+
+# Install Node.js 22 from NodeSource
 curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
-yum install -y nodejs
+yum install -y nodejs gcc gcc-c++ make git nginx
+
+# Install pnpm and pm2
 npm install -g pnpm pm2
+
+# Install PostgreSQL 16
+dnf install -y postgresql16-server postgresql16
+postgresql-setup --initdb
+systemctl enable postgresql
+systemctl start postgresql
+
+# Configure PostgreSQL: create inventrix DB and user
+sudo -u postgres psql -c "CREATE USER inventrix WITH PASSWORD 'inventrix_prod';"
+sudo -u postgres psql -c "CREATE DATABASE inventrix OWNER inventrix;"
+sudo -u postgres psql -c "ALTER USER inventrix CREATEDB;"
+
+# Allow local password auth
+sed -i 's/ident$/md5/g' /var/lib/pgsql/data/pg_hba.conf
+sed -i 's/peer$/md5/g' /var/lib/pgsql/data/pg_hba.conf
+systemctl restart postgresql
+
 systemctl enable nginx
 EOF
 )
@@ -155,10 +171,9 @@ aws ec2 wait instance-running $AWS_OPTS --instance-ids $INSTANCE_ID
 PUBLIC_IP=$(aws ec2 describe-instances $AWS_OPTS --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
 echo "Instance Public IP: $PUBLIC_IP"
 
-echo "Waiting for instance initialization..."
-echo "Checking if setup is complete..."
+echo "Waiting for instance initialization (this may take 2-3 minutes)..."
 for i in {1..30}; do
-  if ssh -i ${KEY_NAME}.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@$PUBLIC_IP "command -v pnpm >/dev/null 2>&1 && command -v pm2 >/dev/null 2>&1 && command -v make >/dev/null 2>&1" 2>/dev/null; then
+  if ssh -i ${KEY_NAME}.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@$PUBLIC_IP "command -v pnpm >/dev/null 2>&1 && command -v pm2 >/dev/null 2>&1 && systemctl is-active postgresql >/dev/null 2>&1" 2>/dev/null; then
     echo "Instance ready!"
     break
   fi
@@ -174,36 +189,48 @@ done
 # Upload application code
 echo "Uploading application code..."
 cd "$(dirname "$0")"
-tar czf /tmp/inventrix.tar.gz --exclude=node_modules --exclude=dist --exclude=.git --exclude=inventrix.db .
+tar czf /tmp/inventrix.tar.gz --exclude=node_modules --exclude=dist --exclude=.git --exclude='*.pem' --exclude=inventrix.db .
 scp -i ${KEY_NAME}.pem -o StrictHostKeyChecking=no /tmp/inventrix.tar.gz ec2-user@$PUBLIC_IP:~/
 rm /tmp/inventrix.tar.gz
 
 # Deploy application
 echo "Deploying application..."
 ssh -i ${KEY_NAME}.pem -o StrictHostKeyChecking=no ec2-user@$PUBLIC_IP << 'ENDSSH'
+set -e
 cd ~
 tar xzf inventrix.tar.gz
 rm inventrix.tar.gz
 
-# Install dependencies
-pnpm install
+# Set production environment
+cat > packages/api/.env << 'ENVFILE'
+DATABASE_URL="postgresql://inventrix:inventrix_prod@localhost:5432/inventrix"
+JWT_SECRET="$(openssl rand -base64 32)"
+PORT=3000
+ENVFILE
 
-# Build application
+# Install dependencies and generate Prisma client
+pnpm install
+cd packages/api
+npx prisma generate
+npx prisma migrate deploy 2>/dev/null || npx prisma db push --accept-data-loss
+npx ts-node prisma/seed.ts
+cd ~
+
+# Build
 pnpm build
 
 # Start API with PM2
 cd packages/api
-pm2 start dist/index.js --name inventrix-api
+pm2 start dist/main.js --name inventrix-api --env production
 pm2 save
-pm2 startup | tail -1 | bash
+sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | bash 2>/dev/null || true
 ENDSSH
 
 # Configure nginx with HTTPS
-echo "Configuring nginx with HTTPS..."
+echo "Configuring nginx..."
 ssh -i ${KEY_NAME}.pem ec2-user@$PUBLIC_IP << 'ENDSSH'
-# Allow nginx to access ec2-user home directory for serving static files
 chmod 711 /home/ec2-user
-sudo mkdir -p /etc/nginx/conf.d /etc/nginx/ssl
+sudo mkdir -p /etc/nginx/ssl
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /etc/nginx/ssl/inventrix.key \
   -out /etc/nginx/ssl/inventrix.crt \
@@ -227,6 +254,9 @@ server {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
     location /images {
         proxy_pass http://localhost:3000;
@@ -258,5 +288,6 @@ echo ""
 echo "Default credentials:"
 echo "  Admin: admin@inventrix.com / admin123"
 echo "  Customer: customer@inventrix.com / customer123"
+echo "  Influencer: influencer@inventrix.com / influencer123"
 echo ""
 echo "Deployment info saved to setup_info.txt"

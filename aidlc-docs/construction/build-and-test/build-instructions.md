@@ -3,61 +3,52 @@
 ## Prerequisites
 - **Node.js**: v22+
 - **pnpm**: v10+
-- **Docker**: PostgreSQL 14 컨테이너
-- **Prisma CLI**: 5.20.0
-
-## Environment Variables
-
-```bash
-# packages/api/.env
-DATABASE_URL="postgresql://postgres:postgres123@localhost:5432/inventrix"
-JWT_SECRET="<your-secret>"
-```
+- **PostgreSQL**: 16 (production) 또는 docker-compose (로컬)
 
 ## Build Steps
 
-### 1. Install Dependencies
+### 1. Dependencies 설치
 ```bash
 pnpm install
 ```
 
-### 2. Setup Database
-```bash
-# PostgreSQL 컨테이너 실행
-docker run -d --name inventrix-db \
-  -e POSTGRES_PASSWORD=postgres123 \
-  -e POSTGRES_DB=inventrix \
-  -p 5432:5432 postgres:14-alpine
-
-# 스키마 적용 (SQL 직접 실행 — Prisma db push P1010 이슈 우회)
-cd packages/api
-npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > /tmp/init.sql
-docker cp /tmp/init.sql inventrix-db:/tmp/init.sql
-docker exec inventrix-db psql -U postgres -d inventrix -f /tmp/init.sql
-```
-
-### 3. Generate Prisma Client
+### 2. Prisma Client 생성
 ```bash
 cd packages/api
 npx prisma generate
 ```
 
-### 4. Build API
+### 3. 전체 빌드
 ```bash
-pnpm --filter api run build
+# 루트에서 실행
+pnpm build
 ```
 
-### 5. Verify Build
-- **Expected**: `nest build` 성공, 에러 0개
-- **Build Artifacts**: `packages/api/dist/`
-- **Known Warning**: Vite CJS deprecation warning (무시 가능)
+### 4. 빌드 결과 확인
+- **API**: `packages/api/dist/` — NestJS 컴파일 결과
+- **Frontend**: `packages/frontend/dist/` — Vite 번들 결과
+  - `index.html`, `assets/index-*.css`, `assets/index-*.js`
+
+## 로컬 실행 (개발)
+```bash
+# PostgreSQL 시작
+docker-compose up -d
+
+# DB 마이그레이션 + 시드
+cd packages/api
+npx prisma db push
+npx ts-node prisma/seed.ts
+
+# 개발 서버 시작
+cd ../..
+pnpm dev
+```
 
 ## Troubleshooting
 
-### Prisma P1010 에러
-- **원인**: Prisma schema-engine의 PostgreSQL 연결 권한 이슈
-- **해결**: `prisma db push` 대신 SQL 직접 실행 (위 Step 2 참조)
+### Prisma generate 실패
+- `pnpm approve-builds` 실행 후 prisma 관련 패키지 승인
+- `npx prisma generate` 재실행
 
-### DTO TS2564 에러
-- **원인**: class-validator DTO 프로퍼티에 `!` (definite assignment) 누락
-- **해결**: 모든 required DTO 프로퍼티에 `!` 추가
+### 빌드 시 TypeScript 에러
+- `node_modules` 삭제 후 `pnpm install` 재실행

@@ -32,6 +32,6 @@
 - [x] CONSTRUCTION - Unit 1: Backend Core (Dev A)
 - [x] CONSTRUCTION - Unit 2: Products & Orders (Dev B)
 - [x] CONSTRUCTION - Unit 3: Reviews & Influencer (Dev C)
-- **Current Stage**: CONSTRUCTION - Unit 4: Frontend (Dev D)
+- **Current Stage**: CONSTRUCTION - Build and Test (완료)
 - [x] CONSTRUCTION - Unit 4: Frontend (Dev D)
-- [x] CONSTRUCTION - Build and Test
+- [x] CONSTRUCTION - Build and Test (2026-04-08T15:13:17+09:00)

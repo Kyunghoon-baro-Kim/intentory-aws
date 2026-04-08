@@ -1,53 +1,47 @@
 # Build and Test Summary
 
 ## Build Status
-- **Build Tool**: NestJS CLI + TypeScript 5.3.3
+- **Build Tool**: pnpm + NestJS CLI + Vite
 - **Build Status**: ✅ Success
-- **Build Artifacts**: `packages/api/dist/`
+- **Build Time**: ~2s (API) + ~0.6s (Frontend)
+- **Build Artifacts**:
+  - `packages/api/dist/` — NestJS 컴파일 결과
+  - `packages/frontend/dist/` — Vite 번들 (index.html, CSS 28.83KB, JS 215.39KB)
 
 ## Test Execution Summary
 
 ### Unit Tests
-- **Total Tests**: 75
-- **Passed**: 75
+- **Total Tests**: 71
+- **Passed**: 71
 - **Failed**: 0
-- **Test Files**: 14
+- **Test Files**: 13/13 passed
 - **Status**: ✅ Pass
-- **Duration**: ~1.1s
-
-### Test Coverage by Module
-
-| Test File | Tests | Status |
-|---|---|---|
-| auth.service.spec.ts | 7 | ✅ |
-| auth.controller.spec.ts | 4 | ✅ |
-| users.service.spec.ts | 3 | ✅ |
-| products.service.spec.ts | 6 | ✅ |
-| orders.service.spec.ts | 8 | ✅ |
-| payments.service.spec.ts | 2 | ✅ |
-| inventory.service.spec.ts | 3 | ✅ |
-| reviews.service.spec.ts | 7 | ✅ |
-| influencer.service.spec.ts | 5 | ✅ |
-| collaborations.service.spec.ts | 11 | ✅ |
-| referrals.service.spec.ts | 9 | ✅ |
-| roles.guard.spec.ts | 4 | ✅ |
-| http-exception.filter.spec.ts | 2 | ✅ |
-| influencer-flow.integration.spec.ts | 4 | ✅ |
 
 ### Integration Tests
-- **Test Scenarios**: 4 (주문 흐름, 리뷰 흐름, 레퍼럴 흐름, 협업 흐름)
-- **Automated**: influencer-flow.integration.spec.ts (4 tests ✅)
-- **Manual**: DB 환경 필요 (지침 작성 완료)
+- **Test Scenarios**: 4 (인증, 상품→주문, Influencer, Admin)
+- **Automated**: 1 (influencer-flow.integration.spec.ts — 4 tests passed)
+- **Status**: ✅ Pass
 
 ### Performance Tests
-- **Status**: N/A (축소판 scope)
+- **Status**: N/A (축소판 — 스킵)
 
-## Known Issues
-1. **Prisma P1010**: `prisma db push` 시 P1010 에러 → SQL 직접 실행으로 우회
-2. ~~**DTO TS2564**~~: 수정 완료 (Sprint 1)
+### Additional Tests
+- **Contract Tests**: N/A
+- **Security Tests**: N/A (축소판)
+- **E2E Tests**: N/A
+
+## Deploy Script 점검 결과
+수정된 항목:
+1. ✅ API 포트 불일치 수정 (3003 → PORT=3000 환경변수 설정)
+2. ✅ Node.js 중복 설치 제거 (NodeSource 22.x만 사용)
+3. ✅ PostgreSQL 16 설치 추가 (EC2 내 DB)
+4. ✅ `prisma generate` + `prisma db push` + `seed` 추가
+5. ✅ DATABASE_URL 프로덕션 설정 추가
+6. ✅ 불필요한 포트 3000 Security Group rule 제거
+7. ✅ destroy.sh 기본 리전 일치 (ap-northeast-2)
 
 ## Overall Status
 - **Build**: ✅ Success
-- **Unit Tests**: ✅ 75/75 Passed
-- **Integration Tests**: ✅ 4/4 자동화 + 📋 수동 지침
-- **Ready for Operations**: ⚠️ DB 연결 환경 해결 후 가능
+- **All Tests**: ✅ Pass (71/71)
+- **Deploy Script**: ✅ 점검 완료, 7개 이슈 수정
+- **Ready for Deployment**: Yes

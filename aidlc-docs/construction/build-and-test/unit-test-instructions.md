@@ -1,41 +1,37 @@
 # Unit Test Execution
 
-## Run All Unit Tests
+## 실행 방법
+
+### API Unit Tests
 ```bash
-pnpm --filter api test
+cd packages/api
+pnpm test
 ```
 
-## Test Results (2026-04-08)
+### 테스트 결과 (2026-04-08 빌드 기준)
+- **Test Files**: 13 passed (13)
+- **Tests**: 71 passed (71)
+- **Duration**: 1.19s
 
-| Test File | Tests | Status |
-|---|---|---|
-| auth.service.spec.ts | 7 | ✅ |
-| products.service.spec.ts | 6 | ✅ |
-| orders.service.spec.ts | 8 | ✅ |
-| payments.service.spec.ts | 2 | ✅ |
-| inventory.service.spec.ts | 3 | ✅ |
-| reviews.service.spec.ts | 7 | ✅ |
-| influencer.service.spec.ts | 5 | ✅ |
-| collaborations.service.spec.ts | 6 | ✅ |
-| referrals.service.spec.ts | 9 | ✅ |
-| **Total** | **53** | **✅ All Passed** |
+### 테스트 파일 목록
+| 파일 | 테스트 수 |
+|---|---|
+| auth.service.spec.ts | 7 |
+| collaborations.service.spec.ts | 11 |
+| referrals.service.spec.ts | 9 |
+| orders.service.spec.ts | 8 |
+| reviews.service.spec.ts | 7 |
+| products.service.spec.ts | 6 |
+| influencer.service.spec.ts | 5 |
+| influencer-flow.integration.spec.ts | 4 |
+| roles.guard.spec.ts | 4 |
+| users.service.spec.ts | 3 |
+| inventory.service.spec.ts | 3 |
+| payments.service.spec.ts | 2 |
+| http-exception.filter.spec.ts | 2 |
 
-- **Duration**: ~900ms
-- **Framework**: Vitest 1.6.1
-
-## Test Coverage by Unit
-
-### Unit 1 (Backend Core)
-- AuthService: register, login, createAdmin, 중복 이메일, 잘못된 역할
-
-### Unit 2 (Products & Orders)
-- ProductsService: findAll, findById(성공/404), create, update, delete
-- OrdersService: create(GST 계산/재고부족/결제실패), findAll(admin/customer), findById(성공/404), updateStatus
-- PaymentsService: processPayment, refund
-- InventoryService: out_of_stock, low_stock, in_stock
-
-### Unit 3 (Reviews & Influencer)
-- ReviewsService: create, findByProduct, delete, getAverageRating
-- InfluencerService: createProfile, updateProfile, findAll
-- CollaborationsService: create, updateStatus, findByInfluencer
-- ReferralsService: generateLink, trackReferral, getStats, getCommissions
+### Coverage 실행
+```bash
+cd packages/api
+pnpm test:cov
+```

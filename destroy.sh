@@ -39,8 +39,8 @@ else
     fi
   fi
   
-  read -p "AWS Region [ap-southeast-2]: " AWS_REGION
-  AWS_REGION="${AWS_REGION:-ap-southeast-2}"
+  read -p "AWS Region [ap-northeast-2]: " AWS_REGION
+  AWS_REGION="${AWS_REGION:-ap-northeast-2}"
   
   read -p "Instance ID (optional): " INSTANCE_ID
   read -p "Key Pair Name [inventrix-key]: " KEY_NAME
