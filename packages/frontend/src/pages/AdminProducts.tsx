@@ -35,7 +35,10 @@ export default function AdminProducts() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ prompt: `Product photo of ${form.name}. ${form.description || ''}`.trim() })
       });
-      const base64 = await res.json();
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      const base64 = typeof data === 'string' ? data : data.image;
+      if (!base64) throw new Error('No image data');
       setForm(f => ({ ...f, imageUrl: `data:image/png;base64,${base64}` }));
     } catch {
       alert('Image generation failed');
